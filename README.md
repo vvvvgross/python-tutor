@@ -62,8 +62,8 @@ API-ключ вводится пользователем в интерфейсе
 1. Склонируйте репозиторий:
 
 ```bash
-git clone <URL_ВАШЕГО_РЕПОЗИТОРИЯ>
-cd <ПАПКА_ПРОЕКТА>
+git clone https://github.com/vvvvgross/python-tutor.git
+cd python-tutor
 ```
 
 2. Соберите sandbox-образ:
