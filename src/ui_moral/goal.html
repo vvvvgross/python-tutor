@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Tutor — Цель обучения</title>
+  <link rel="stylesheet" href="workspace.css">
+  <link rel="icon" type="image/png" href="/ui_moral/favicon.png">
+  <style>
+    /* ─── Goal page overrides (extends workspace.css base) ─── */
+    body {
+      display: block;
+      overflow: auto;
+      min-height: 100vh;
+    }
+
+    .goal-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 32px 16px 60px;
+    }
+
+    /* Header */
+    .goal-header {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
+    }
+    .goal-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .goal-brand span { color: var(--text-muted); font-weight: 400; font-size: 13px; }
+
+    /* Guide button */
+    .goal-guide-btn {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .goal-guide-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Card */
+    .goal-card {
+      width: 100%;
+      max-width: 760px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 20px;
+    }
+
+    .goal-card h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .goal-card .goal-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+    }
+
+    /* Goal textarea */
+    .goal-textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      padding: 14px 16px;
+      resize: vertical;
+      min-height: 80px;
+      max-height: 160px;
+      line-height: 1.55;
+      transition: border-color 0.15s;
+      margin-bottom: 14px;
+    }
+    .goal-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(106,191,255,0.08);
+    }
+    .goal-textarea::placeholder { color: var(--text-muted); }
+
+    /* Chips */
+    .goal-chips-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .goal-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 22px;
+    }
+    .goal-chip {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .goal-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(106,191,255,0.06);
+    }
+
+    /* Options row */
+    .goal-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 600px) {
+      .goal-options { grid-template-columns: 1fr; }
+    }
+
+    .goal-option-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .goal-option-btns {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .goal-opt-btn {
+      flex: 1;
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .goal-opt-btn:hover { border-color: var(--border-hover); color: var(--text); }
+    .goal-opt-btn.selected {
+      border-color: var(--accent2);
+      background: rgba(80,140,255,0.12);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Build button */
+    .goal-build-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.3px;
+    }
+    .goal-build-btn:hover:not(:disabled) { opacity: 0.92; }
+    .goal-build-btn:active:not(:disabled) { transform: scale(0.99); }
+    .goal-build-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Loading spinner */
+    .goal-loading {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 14px;
+    }
+    .goal-loading.visible { display: flex; }
+    .goal-spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Preview block ─── */
+    .goal-preview {
+      width: 100%;
+      max-width: 760px;
+      display: none;
+    }
+    .goal-preview.visible { display: block; }
+
+    .goal-preview-card {
+      background: var(--bg-panel);
+      border: 1px solid rgba(106,191,255,0.2);
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 16px;
+    }
+
+    .goal-preview-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .goal-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--text-muted);
+      margin: 18px 0 8px;
+    }
+
+    .goal-outcomes { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .goal-outcome {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 13px; color: var(--text); line-height: 1.5;
+    }
+    .goal-outcome::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+    .goal-prereqs { display: flex; flex-wrap: wrap; gap: 6px; }
+    .goal-prereq {
+      font-size: 12px; padding: 3px 10px; border-radius: 20px;
+      border: 1px solid rgba(251,191,36,0.25); background: rgba(251,191,36,0.06);
+      color: var(--yellow);
+    }
+
+    /* Steps preview */
+    .goal-steps { display: flex; flex-direction: column; gap: 8px; }
+    .goal-step-preview {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      font-size: 13px; color: var(--text);
+    }
+    .goal-step-num {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(80,140,255,0.15);
+      border: 1px solid rgba(80,140,255,0.3);
+      color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0;
+    }
+
+    /* Criteria */
+    .goal-criteria-preview {
+      background: rgba(74,222,128,0.06);
+      border: 1px solid rgba(74,222,128,0.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px; color: var(--text);
+    }
+    .goal-criteria-preview strong { color: var(--green); }
+
+    /* Action buttons */
+    .goal-actions {
+      display: flex; gap: 10px; margin-top: 16px;
+    }
+    .goal-start-btn {
+      flex: 2;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .goal-start-btn:hover { opacity: 0.9; }
+    .goal-start-btn:active { transform: scale(0.99); }
+
+    .goal-rebuild-btn {
+      flex: 1;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .goal-rebuild-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Error message */
+    .goal-error {
+      display: none;
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--red);
+      font-size: 13px;
+      margin-top: 14px;
+    }
+    .goal-error.visible { display: block; }
+
+    /* ─── API Key section ─── */
+    .goal-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .goal-provider-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .goal-provider-tabs .goal-opt-btn {
+      flex: none;
+      padding: 7px 18px;
+      font-size: 13px;
+    }
+    .goal-key-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      letter-spacing: 0.03em;
+      transition: border-color 0.15s;
+    }
+    .goal-key-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(106,191,255,0.08);
+    }
+    .goal-key-input::placeholder { color: var(--text-muted); }
+    .goal-key-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .goal-check-btn {
+      white-space: nowrap;
+      padding: 11px 22px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+    }
+    .goal-check-btn:hover:not(:disabled) { opacity: 0.88; }
+    .goal-check-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .goal-key-status {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .goal-key-status.ok    { color: var(--green); }
+    .goal-key-status.error { color: var(--red); }
+    .goal-key-status.loading { color: var(--accent); }
+    .goal-key-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 12px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+<div class="goal-page">
+
+  <!-- Header -->
+  <header class="goal-header">
+    <a href="/" class="goal-brand">
+      🐍 Python Tutor
+      <span>Учебная IDE</span>
+    </a>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <a href="/guide" target="_blank" class="goal-guide-btn" title="Руководство пользователя">📖 Руководство</a>
+    </div>
+  </header>
+
+  <!-- API Key Card -->
+  <div class="goal-card" id="api-key-card">
+    <h2>🔑 Введи API-ключ</h2>
+    <p class="goal-hint">
+      Для работы ИИ-тьютора нужен твой личный ключ. Ключ используется только в рамках этой вкладки и нигде не сохраняется.
+    </p>
+
+    <div class="goal-provider-tabs" id="provider-tabs">
+      <button class="goal-opt-btn selected" data-provider="deepseek" onclick="selectProvider('deepseek', this)">DeepSeek</button>
+    </div>
+
+    <input
+      id="api-key-input"
+      type="password"
+      class="goal-key-input"
+      placeholder="Введи API-ключ (начинается с sk-...)"
+      autocomplete="off"
+      onkeydown="if(event.key==='Enter') checkApiKey()"
+    />
+
+    <div class="goal-key-row">
+      <button id="check-key-btn" class="goal-check-btn" onclick="checkApiKey()">Проверить ключ</button>
+      <span id="key-status" class="goal-key-status"></span>
+    </div>
+
+    <p class="goal-key-note">
+      Получить ключ: <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:inherit">platform.deepseek.com</a>
+    </p>
+  </div>
+
+  <!-- Main form — скрыт до подтверждения ключа -->
+  <div id="main-form-wrapper" style="display:none;width:100%;flex-direction:column;align-items:center;">
+
+  <!-- Goal Input Card -->
+  <div class="goal-card" id="input-card">
+    <h2>Чему хочешь научиться?</h2>
+    <p class="goal-subtitle">Опиши свою цель — система составит персональный учебный план.</p>
+
+    <textarea
+      id="goal-input"
+      class="goal-textarea"
+      placeholder="Например: хочу научиться писать рекурсивные функции на Python..."
+      rows="3"
+    ></textarea>
+
+    <div class="goal-chips-label">Примеры целей</div>
+    <div class="goal-chips" id="chips">
+      <button class="goal-chip" onclick="setGoal('Научиться рекурсии в Python')">🔄 Рекурсия</button>
+      <button class="goal-chip" onclick="setGoal('Освоить функции и область видимости в Python')">⚙️ Функции</button>
+      <button class="goal-chip" onclick="setGoal('Понять ООП и классы в Python')">🏗️ Классы и ООП</button>
+      <button class="goal-chip" onclick="setGoal('Научиться работать со списками и словарями')">📋 Структуры данных</button>
+
+    </div>
+
+    <div class="goal-options">
+      <div class="goal-option-group">
+        <label>Уровень</label>
+        <div class="goal-option-btns" id="level-btns">
+          <button class="goal-opt-btn selected" data-value="beginner"    onclick="selectOpt('level', this)">Новичок</button>
+          <button class="goal-opt-btn"           data-value="intermediate" onclick="selectOpt('level', this)">Средний</button>
+          <button class="goal-opt-btn"           data-value="advanced"     onclick="selectOpt('level', this)">Продвинутый</button>
+        </div>
+      </div>
+
+      <div class="goal-option-group">
+        <label>Время</label>
+        <div class="goal-option-btns" id="duration-btns">
+          <button class="goal-opt-btn"            data-value="15"  onclick="selectOpt('duration', this)">15 мин</button>
+          <button class="goal-opt-btn selected"   data-value="45"  onclick="selectOpt('duration', this)">45 мин</button>
+          <button class="goal-opt-btn"            data-value="120" onclick="selectOpt('duration', this)">2 часа</button>
+        </div>
+      </div>
+
+      <div class="goal-option-group">
+        <label>Фокус</label>
+        <div class="goal-option-btns" id="preference-btns">
+          <button class="goal-opt-btn"          data-value="practice" onclick="selectOpt('preference', this)">Практика</button>
+          <button class="goal-opt-btn selected" data-value="balanced" onclick="selectOpt('preference', this)">Баланс</button>
+          <button class="goal-opt-btn"          data-value="theory"   onclick="selectOpt('preference', this)">Теория</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Self-efficacy (Zimmermann SRL: Forethought phase) -->
+    <div class="goal-option-group" style="margin-bottom:4px">
+      <label style="margin-bottom:6px;display:block">Насколько ты уверен, что справишься с этой темой?</label>
+      <div class="goal-option-btns" id="efficacy-btns">
+        <button class="goal-opt-btn" data-value="1" onclick="selectOpt('selfEfficacy', this)" title="Почти не уверен">1</button>
+        <button class="goal-opt-btn" data-value="2" onclick="selectOpt('selfEfficacy', this)" title="Скорее нет">2</button>
+        <button class="goal-opt-btn selected" data-value="3" onclick="selectOpt('selfEfficacy', this)" title="Нейтрально">3</button>
+        <button class="goal-opt-btn" data-value="4" onclick="selectOpt('selfEfficacy', this)" title="Скорее уверен">4</button>
+        <button class="goal-opt-btn" data-value="5" onclick="selectOpt('selfEfficacy', this)" title="Полностью уверен">5</button>
+      </div>
+    </div>
+
+    <button class="goal-build-btn" id="build-btn" onclick="buildGoal()">
+      ✨ Сформировать учебный блок
+    </button>
+
+    <div class="goal-loading" id="loading">
+      <div class="goal-spinner"></div>
+      <span>Генерирую персональный план...</span>
+    </div>
+
+    <div class="goal-error" id="error-msg"></div>
+  </div>
+
+  <!-- Preview Block (shown after generation) -->
+  <div class="goal-preview" id="preview-block">
+    <div class="goal-preview-card">
+      <div class="goal-preview-title" id="preview-title"></div>
+
+      <div class="goal-section-label">К концу занятия ты умеешь:</div>
+      <ul class="goal-outcomes" id="preview-outcomes"></ul>
+
+      <div class="goal-section-label">Предварительные знания:</div>
+      <div class="goal-prereqs" id="preview-prereqs"></div>
+
+      <div class="goal-section-label">План занятия:</div>
+      <div class="goal-steps" id="preview-steps"></div>
+
+      <div class="goal-section-label">Критерий успеха:</div>
+      <div class="goal-criteria-preview">
+        <strong>✅</strong> <span id="preview-criteria"></span>
+      </div>
+    </div>
+
+    <div class="goal-actions">
+      <button class="goal-start-btn" id="start-btn" onclick="startSession()">
+        🚀 Начать занятие
+      </button>
+      <button class="goal-rebuild-btn" onclick="rebuildGoal()">🔄 Пересобрать</button>
+    </div>
+  </div>
+
+  </div><!-- #main-form-wrapper -->
+
+</div><!-- .goal-page -->
+
+<script src="goal.js"></script>
+</body>
+</html>

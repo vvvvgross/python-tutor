@@ -1,0 +1,66 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment files and local secrets
+.env
+.env.*
+*.env
+!.env.example
+src/config.yaml
+
+# Application runtime data
+logs/*
+!logs/.gitkeep
+tutor-data/sessions/*
+!tutor-data/sessions/.gitkeep
+tutor-data/tasks/gen_*/
+
+# Local generated or temporary project files
+task.md
+README.md *.md
+src/tutor-data/
+
+# Internal fix reports and audit notes
+PROJECT_FIXES.md
+BUGS.md
+CHANGELOG.md
+FIX_REPORT.md
+FIX_REPORT_v*.md
+HOTFIX_NOTES.md
+SECURITY_CHANGES.md
+
+# IDE and local tooling
+.vscode/
+.idea/
+.codex/
+.agents/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# Packaging/build artifacts
+build/
+dist/
+*.egg-info/
+
+# Docker/local compose overrides
+docker-compose.override.yml

@@ -1,0 +1,16 @@
+auth:
+  url: https://api.deepseek.com
+  token: ""
+
+openai:
+  api_key: ""
+
+run_mode: local
+
+running:
+  local:
+    host: "0.0.0.0"
+    port: 8000
+  server:
+    host: "0.0.0.0"
+    port: 8000

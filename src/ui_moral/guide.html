@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Tutor — Руководство пользователя</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/ui_moral/favicon.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #0b1220;
+      --bg-panel:     rgba(15,23,42,0.9);
+      --bg-card:      rgba(16,24,44,0.85);
+      --border:       rgba(255,255,255,0.07);
+      --border-light: rgba(255,255,255,0.11);
+      --text:         #e8eef7;
+      --text-muted:   #7a8ba8;
+      --accent:       #6abfff;
+      --accent2:      #508cff;
+      --green:        #4ade80;
+      --red:          #f87171;
+      --yellow:       #fbbf24;
+      --purple:       #a78bfa;
+      --sidebar-w:    240px;
+      --header-h:     56px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ──────────────────────────── HEADER ──────────────────────────── */
+    .g-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--header-h);
+      background: rgba(11,18,32,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+    }
+    .g-header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .g-header-brand span {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 13px;
+    }
+    .g-header-back {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      transition: all 0.15s;
+    }
+    .g-header-back:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ──────────────────────────── LAYOUT ──────────────────────────── */
+    .g-layout {
+      display: flex;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      gap: 40px;
+    }
+
+    /* ──────────────────────────── SIDEBAR ──────────────────────────── */
+    .g-sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+    }
+    .g-sidebar-inner {
+      position: sticky;
+      top: calc(var(--header-h) + 24px);
+    }
+    .g-sidebar-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-left: 12px;
+    }
+    .g-nav { list-style: none; }
+    .g-nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 7px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: all 0.15s;
+      border-left: 2px solid transparent;
+      line-height: 1.3;
+    }
+    .g-nav-item a:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+    }
+    .g-nav-item a.active {
+      color: var(--accent);
+      background: rgba(106,191,255,0.07);
+      border-left-color: var(--accent);
+    }
+    .g-nav-icon { font-size: 14px; flex-shrink: 0; }
+
+    /* ──────────────────────────── CONTENT ──────────────────────────── */
+    .g-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Hero */
+    .g-hero {
+      background: linear-gradient(135deg, rgba(80,140,255,0.12) 0%, rgba(106,191,255,0.06) 100%);
+      border: 1px solid rgba(106,191,255,0.18);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 48px;
+    }
+    .g-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(106,191,255,0.12);
+      border: 1px solid rgba(106,191,255,0.25);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .g-hero h1 {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #e8eef7 0%, #6abfff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .g-hero p {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 560px;
+      line-height: 1.6;
+    }
+
+    /* Sections */
+    .g-section {
+      margin-bottom: 56px;
+      scroll-margin-top: calc(var(--header-h) + 24px);
+    }
+    .g-section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .g-section-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .g-section-icon--blue   { background: rgba(106,191,255,0.12); }
+    .g-section-icon--green  { background: rgba(74,222,128,0.10); }
+    .g-section-icon--purple { background: rgba(167,139,250,0.10); }
+    .g-section-icon--yellow { background: rgba(251,191,36,0.10); }
+    .g-section-icon--red    { background: rgba(248,113,113,0.10); }
+
+    .g-section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .g-section-title span {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+
+    p { color: var(--text-muted); margin-bottom: 14px; }
+    p:last-child { margin-bottom: 0; }
+
+    strong { color: var(--text); font-weight: 600; }
+
+    /* Tip cards */
+    .tip {
+      background: rgba(106,191,255,0.05);
+      border-left: 3px solid var(--accent2);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 18px 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .tip strong { color: var(--accent); }
+    .tip.tip--green {
+      background: rgba(74,222,128,0.05);
+      border-left-color: var(--green);
+    }
+    .tip.tip--green strong { color: var(--green); }
+    .tip.tip--yellow {
+      background: rgba(251,191,36,0.05);
+      border-left-color: var(--yellow);
+    }
+    .tip.tip--yellow strong { color: var(--yellow); }
+
+    /* Step list */
+    .step-list { list-style: none; margin: 16px 0; }
+    .step-list li {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step-list li:last-child { border-bottom: none; }
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(80,140,255,0.18);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step-list li p { margin: 0; font-size: 13.5px; }
+
+    /* Grid cards */
+    .g-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin: 20px 0;
+    }
+    .g-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      transition: border-color 0.15s;
+    }
+    .g-card:hover { border-color: var(--border-light); }
+    .g-card-icon { font-size: 22px; margin-bottom: 10px; }
+    .g-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .g-card-desc { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+    /* Panel anatomy */
+    .panel-anatomy {
+      display: grid;
+      grid-template-columns: 1fr 1.8fr 1fr;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .panel-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .panel-block-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .panel-block ul { list-style: none; }
+    .panel-block ul li {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      padding: 3px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .panel-block ul li:last-child { border-bottom: none; }
+    .panel-block ul li::before {
+      content: '›';
+      color: var(--accent2);
+      font-weight: 700;
+    }
+
+    /* Button demos */
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+    .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: default;
+      border: 1px solid;
+    }
+    .demo-btn--run {
+      background: rgba(74,222,128,0.10);
+      border-color: rgba(74,222,128,0.25);
+      color: var(--green);
+    }
+    .demo-btn--test {
+      background: rgba(106,191,255,0.10);
+      border-color: rgba(106,191,255,0.25);
+      color: var(--accent);
+    }
+    .demo-btn--hint {
+      background: rgba(251,191,36,0.08);
+      border-color: rgba(251,191,36,0.2);
+      color: var(--yellow);
+    }
+    .demo-btn--next {
+      background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.15));
+      border-color: rgba(74,222,128,0.3);
+      color: var(--green);
+    }
+
+    /* Keyboard shortcuts table */
+    .kbd-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    .kbd-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .kbd-table td {
+      padding: 11px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .kbd-table tr:last-child td { border-bottom: none; }
+    .kbd-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    kbd {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    /* Step type badges */
+    .step-types { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+    .step-type-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .step-badge {
+      font-size: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-badge--theory  { background: rgba(106,191,255,0.12); }
+    .step-badge--task    { background: rgba(80,140,255,0.12); }
+    .step-badge--practice{ background: rgba(74,222,128,0.10); }
+    .step-badge--quiz    { background: rgba(167,139,250,0.10); }
+    .step-type-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .step-type-desc { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+    /* Metric cards */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .metric-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .metric-val {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'Fira Code', monospace;
+      margin-bottom: 4px;
+    }
+    .metric-desc { font-size: 12px; color: var(--text-muted); }
+
+    /* Divider */
+    .g-divider { height: 1px; background: var(--border); margin: 40px 0; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .g-sidebar { display: none; }
+      .g-layout { padding: 24px 16px 60px; }
+      .g-hero { padding: 24px; }
+      .g-hero h1 { font-size: 22px; }
+      .panel-anatomy { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .g-grid { grid-template-columns: 1fr; }
+      .g-header { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="g-header">
+  <a href="/" class="g-header-brand">
+    🐍 Python Tutor
+    <span>Руководство пользователя</span>
+  </a>
+  <a href="/" class="g-header-back">← На главную</a>
+</header>
+
+<!-- LAYOUT -->
+<div class="g-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="g-sidebar">
+    <div class="g-sidebar-inner">
+      <div class="g-sidebar-title">Содержание</div>
+      <ul class="g-nav">
+        <li class="g-nav-item"><a href="#what" class="active"><span class="g-nav-icon">🐍</span>Что такое Python Tutor</a></li>
+        <li class="g-nav-item"><a href="#start"><span class="g-nav-icon">🚀</span>Как начать занятие</a></li>
+        <li class="g-nav-item"><a href="#workspace"><span class="g-nav-icon">📋</span>Рабочее пространство</a></li>
+        <li class="g-nav-item"><a href="#editor"><span class="g-nav-icon">💻</span>Редактор кода</a></li>
+        <li class="g-nav-item"><a href="#chat"><span class="g-nav-icon">💬</span>Чат с тьютором</a></li>
+        <li class="g-nav-item"><a href="#theory"><span class="g-nav-icon">📖</span>Шаги теории</a></li>
+        <li class="g-nav-item"><a href="#steps"><span class="g-nav-icon">🗂️</span>Типы шагов</a></li>
+        <li class="g-nav-item"><a href="#metrics"><span class="g-nav-icon">📊</span>Метрики</a></li>
+        <li class="g-nav-item"><a href="#shortcuts"><span class="g-nav-icon">⌨️</span>Горячие клавиши</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="g-content">
+
+    <!-- Hero -->
+    <div class="g-hero">
+      <div class="g-hero-badge">📚 Руководство пользователя · v1</div>
+      <h1>Добро пожаловать в Python Tutor</h1>
+      <p>Персональная учебная IDE с ИИ-тьютором. Каждое занятие генерируется
+        под вашу цель: платформа составляет план, ставит задачи, объясняет теорию
+        и направляет вас шаг за шагом.</p>
+    </div>
+
+    <!-- ─── 1. Что это ─── -->
+    <section class="g-section" id="what">
+      <div class="g-section-header">
+        <div class="g-section-icon g-section-icon--blue">🐍</div>
+        <div>
+          <div class="g-section-title">Что такое Python Tutor</div>
+        </div>
+      </div>
+
+      <p><strong>Python Tutor</strong> — это интерактивная среда обучения, в которой
+        каждая сессия создаётся персонально для вас. Вы формулируете свою цель
+        (например, «хочу разобраться с рекурсией»), и ИИ генерирует индивидуальный
+        учебный блок: теорию, практические задания и тесты.</p>
+
+      <p>В отличие от фиксированных курсов, здесь нет заранее написанных лекций —
+        содержание адаптируется под ваш уровень, желаемое время и предпочтения.</p>
+
+      <div class="g-grid">
+        <div class="g-card">
+          <div class="g-card-icon">🎯</div>
+          <div class="g-card-title">Персональный план</div>
+          <p class="g-card-desc">ИИ строит учебный маршрут под вашу конкретную цель и уровень.</p>
+        </div>
+        <div class="g-card">
+          <div class="g-card-icon">⚡</div>
+          <div class="g-card-title">Живой редактор</div>
+          <p class="g-card-desc">Пишите и запускайте Python прямо в браузере — без установки.</p>
+        </div>
+        <div class="g-card">
+          <div class="g-card-icon">🤖</div>
+          <div class="g-card-title">ИИ-тьютор рядом</div>
+          <p class="g-card-desc">Задавайте вопросы, просите намёки — тьютор не даёт готовый ответ, а направляет.</p>
+        </div>
+        <div class="g-card">
+          <div class="g-card-icon">✅</div>
+          <div class="g-card-title">Автоматические тесты</div>
+          <p class="g-card-desc">Каждое задание проверяется по чётким критериям с мгновенной обратной связью.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 2. Начало занятия ─── -->
+    <section class="g-section" id="start">
+      <div class="g-section-header">
+        <div class="g-section-icon g-section-icon--green">🚀</div>
+        <div>
+          <div class="g-section-title">Как начать занятие</div>
+        </div>
+      </div>
+
+      <p>Откройте главную страницу (<strong>/</strong>) — это страница настройки цели.
+        Заполните форму и нажмите «Сформировать учебный блок».</p>
+
+      <ul class="step-list">
+        <li>
+          <div class="step-num">1</div>
+          <p><strong>Введите API-ключ DeepSeek</strong> — вставьте ключ в поле и нажмите «Проверить».
+            После успешной проверки форма настройки откроется ниже.
+            Ключ нужен для генерации плана и работы тьютора.</p>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <p><strong>Введите цель</strong> — опишите, что хотите изучить. Например:
+            «Хочу научиться писать рекурсивные функции» или «Разобраться с классами и ООП».
+            Можно выбрать тему быстрым нажатием на одну из готовых кнопок-чипов.</p>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <p><strong>Выберите уровень</strong>: Новичок (базовый синтаксис), Средний (знакомы с основами)
+            или Продвинутый (комфортно с функциями и структурами данных).</p>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <p><strong>Укажите время</strong>: 15 минут (быстрый урок), 45 минут (стандартное занятие)
+            или 2 часа (глубокое погружение).</p>
+        </li>
+        <li>
+          <div class="step-num">5</div>
+          <p><strong>Выберите фокус</strong>: Практика (больше кода, меньше теории),
+            Баланс (смешанный формат) или Теория (концептуальное понимание).</p>
+        </li>
+        <li>
+          <div class="step-num">6</div>
+          <p><strong>Оцените уверенность</strong> — шкала от 1 до 5: насколько уверены,
+            что справитесь с поставленной целью? Тьютор учитывает этот показатель:
+            при низкой уверенности даёт больше поддержки и объяснений.</p>
+        </li>
+        <li>
+          <div class="step-num">7</div>
+          <p><strong>Нажмите «✨ Сформировать учебный блок»</strong> — ИИ создаст персональный план.
+            Просмотрите результат: цели занятия, шаги, критерий успеха.</p>
+        </li>
+        <li>
+          <div class="step-num">8</div>
+          <p><strong>Нажмите «🚀 Начать занятие»</strong> — откроется рабочее пространство,
+            где начнётся ваша сессия.</p>
+        </li>
+      </ul>
+
+      <div class="tip tip--yellow">
+        <strong>Совет:</strong> Если сгенерированный план не подходит — нажмите
+        «🔄 Пересобрать», и ИИ создаст другой вариант.
+      </div>
+
+      <div class="tip tip--yellow">
+        <strong>⚠️ Таймаут сессии:</strong> если не совершать никаких действий более
+        <strong>15 минут</strong>, рабочее окружение автоматически останавливается.
+        При следующем действии вы увидите ошибку — нужно вернуться на главную и начать новое занятие.
+        Ваш код при этом не сохраняется, поэтому не делайте длинных перерывов в середине задания.
+      </div>
+    </section>
+
+    <!-- ─── 3. Рабочее пространство ─── -->
+    <section class="g-section" id="workspace">
+      <div class="g-section-header">
+        <div class="g-section-icon g-section-icon--purple">📋</div>
+        <div>
+          <div class="g-section-title">Рабочее пространство</div>
+        </div>
+      </div>
+
+      <p>Рабочее пространство разделено на три колонки. Каждая выполняет свою роль:</p>
+
+      <div class="panel-anatomy">
+        <div class="panel-block">
+          <div class="panel-block-label">← Левая панель</div>
+          <ul>
+            <li>📋 План занятия</li>
+            <li>📝 Текущее задание</li>
+            <li>✅ Критерий успеха</li>
+            <li>▶ Кнопки Run / Test</li>
+            <li>📊 Метрики сессии</li>
+          </ul>
+        </div>
+        <div class="panel-block" style="border-color: rgba(106,191,255,0.2);">
+          <div class="panel-block-label" style="color:var(--accent);">⬛ Центр (редактор)</div>
+          <ul>
+            <li>🐍 starter_code.py</li>
+            <li>📖 theory.md (теория)</li>
+            <li>▶ Run / ✓ Test</li>
+            <li>Консоль внизу</li>
+            <li>Результаты тестов</li>
+          </ul>
+        </div>
+        <div class="panel-block">
+          <div class="panel-block-label">→ Правая панель</div>
+          <ul>
+            <li>💬 Чат с тьютором</li>
+            <li>💡 Намёки</li>
+            <li>❓ Объяснить ошибку</li>
+            <li>→ Следующий шаг</li>
+            <li>Ввод сообщения</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip">
+        <strong>На мобильных устройствах</strong> три колонки переключаются через вкладки
+        внизу экрана: 📋 План, 💻 Код, 💬 Чат.
+      </div>
+
+      <p>В <strong>шапке страницы</strong> отображаются: название цели, номер текущего шага,
+        таймер сессии и статус подключения. В правом углу показывается ваш уровень
+        (Новичок / Средний / Продвинутый) — он задаётся при настройке цели.</p>
+    </section>
+
+    <!-- ─── 4. Редактор ─── -->
+    <section class="g-section" id="editor">
+      <div class="g-section-header">
+        <div class="g-section-icon g-section-icon--blue">💻</div>
+        <div>
+          <div class="g-section-title">Редактор кода</div>
+        </div>
+      </div>
+
+      <p>Центральная панель — полноценный редактор Python с подсветкой синтаксиса,
+        автодополнением скобок и нумерацией строк.</p>
+
+      <p>Основные действия:</p>
+
+      <div class="btn-row">
+        <div class="demo-btn demo-btn--run">▶ Run</div>
+        <div class="demo-btn demo-btn--test">✓ Test</div>
+      </div>
+
+      <ul class="step-list">
+        <li>
+          <div class="step-num">▶</div>
+          <p><strong>Run</strong> — выполняет ваш код и показывает результат в консоли внизу.
+            Используйте для быстрой проверки вывода и отладки. Результат появляется
+            во вкладке <em>Output</em>.</p>
+        </li>
+        <li>
+          <div class="step-num">✓</div>
+          <p><strong>Test</strong> — запускает автоматические тесты для текущего задания.
+            Показывает, какие тесты прошли (✅), а какие упали (❌). Кликните на упавший
+            тест, чтобы увидеть подробный вывод и понять, что пошло не так.</p>
+        </li>
+      </ul>
+
+      <div class="tip tip--green">
+        <strong>Задание засчитано</strong>, когда проходит минимум <strong>60% тестов</strong>
+        (например, 4 из 6) —
+        появится кнопка «→ Следующий шаг». При 100% показывается 🎉-поздравление.
+        Стремитесь к 100%.
+      </div>
+
+      <p>Индикаторы шагов в левой панели меняют цвет в зависимости от прогресса:</p>
+      <ul class="step-list">
+        <li>
+          <div class="step-num" style="background:rgba(74,222,128,0.18);color:var(--green);">✓</div>
+          <p><strong style="color:var(--green);">Зелёный</strong> — шаг завершён идеально: 100% тестов пройдено.</p>
+        </li>
+        <li>
+          <div class="step-num" style="background:rgba(251,191,36,0.18);color:var(--yellow);">!</div>
+          <p><strong style="color:var(--yellow);">Жёлтый</strong> — шаг зачтён для перехода,
+            но ещё не 100% тестов.</p>
+        </li>
+        <li>
+          <div class="step-num" style="background:rgba(248,113,113,0.18);color:var(--red);">✗</div>
+          <p><strong style="color:var(--red);">Красный</strong> — тесты провалены: пройдено меньше 60%.</p>
+        </li>
+        <li>
+          <div class="step-num" style="background:rgba(255,255,255,0.05);color:var(--text-muted);">🔒</div>
+          <p><strong>Серый / замочек</strong> — шаг «Рефлексия» заблокирован. Сначала завершите
+            все предыдущие шаги (Теория, Разбор примера, Практическое задание).</p>
+        </li>
+      </ul>
+
+      <div class="tip">
+        <strong>Код сохраняется по шагам:</strong> если переключились на другой шаг и вернулись —
+        ваш код будет на месте. Каждый шаг хранит свой код независимо.
+      </div>
+
+      <p>В нижней части экрана находится <strong>консоль</strong> с двумя вкладками:</p>
+      <ul class="step-list">
+        <li>
+          <div class="step-num">📤</div>
+          <p><strong>Output</strong> — стандартный вывод вашего кода (print, ошибки).</p>
+        </li>
+        <li>
+          <div class="step-num">⬛</div>
+          <p><strong>Вывод программы</strong> — область отображения результата запуска и автопроверки кода,
+            для ручного запуска команд.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ─── 5. Чат ─── -->
+    <section class="g-section" id="chat">
+      <div class="g-section-header">
+        <div class="g-section-icon g-section-icon--green">💬</div>
+        <div>
+          <div class="g-section-title">Чат с тьютором</div>
+        </div>
+      </div>
+
+      <p>Правая панель — ваш персональный тьютор на базе ИИ.
+        Он видит ваш текущий код, историю попыток и контекст задания.</p>
+
+      <p>Быстрые кнопки действий:</p>
+
+      <div class="btn-row">
+        <div class="demo-btn demo-btn--hint">💬 Задай вопрос</div>
+        <div class="demo-btn demo-btn--hint">💡 Дай подсказку</div>
+        <div class="demo-btn demo-btn--test">🔍 Разбери ошибку</div>
+        <div class="demo-btn demo-btn--next">✅ Проверь код</div>
+      </div>
+
+      <ul class="step-list">
+        <li>
+          <div class="step-num">1</div>
+          <p><strong>💬 Задай вопрос</strong> — тьютор задаёт наводящий вопрос,
+            который помогает вам самому найти решение. Ответ не раскрывается.</p>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <p><strong>💡 Дай подсказку</strong> — конкретная подсказка с направлением.
+            При необходимости тьютор покажет небольшой фрагмент кода.</p>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <p><strong>🔍 Разбери ошибку</strong> — тьютор разберёт упавшие тесты:
+            объяснит причину, покажет где искать и как исправить.
+            Кнопка активна только после запуска тестов с ошибками.</p>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <p><strong>✅ Проверь код</strong> — отправляет текущий код тьютору на ревью.
+            Тьютор даст обратную связь: что сделано хорошо и что можно улучшить.</p>
+        </li>
+      </ul>
+
+      <div class="tip">
+        <strong>Совет:</strong> Не ограничивайтесь кнопками — задавайте любые вопросы
+        в текстовом поле. Тьютор отвечает в потоковом режиме (ответ появляется
+        по мере генерации). Спрашивайте «почему это работает», «в чём разница» —
+        тьютор объяснит в контексте вашей задачи.
+      </div>
+    </section>
+
+    <!-- ─── 6. Теория ─── -->
+    <section class="g-section" id="theory">
+      <div class="g-section-header">
+        <div class="g-section-icon g-section-icon--purple">📖</div>
+        <div>
+          <div class="g-section-title">Шаги теории</div>
+        </div>
+      </div>
+
+      <p>Некоторые шаги плана — теоретические (иконка 📖).
+        Вместо задания ИИ генерирует объяснение концепции с примерами кода.</p>
+
+      <p>Теория открывается в центральной панели как вкладка <strong>theory.md</strong>:
+        форматированный текст с заголовками, блоками кода и примерами.</p>
+
+      <ul class="step-list">
+        <li>
+          <div class="step-num">1</div>
+          <p>Прочитайте материал — теория генерируется специально под вашу цель и уровень.</p>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <p>Нажмите <strong>«📚 Расширить теорию»</strong> внизу страницы, чтобы углубиться
+            в любой аспект. Введите запрос («объясни подробнее наследование», «покажи больше примеров»)
+            — ИИ добавит новый раздел прямо на страницу.</p>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <p>Когда готовы двигаться дальше — нажмите кнопку
+            <strong>«→ Следующий шаг»</strong> в левой панели.</p>
+        </li>
+      </ul>
+
+      <div class="tip">
+        <strong>Кэш теории:</strong> если вернуться к уже просмотренному теоретическому шагу,
+        теория откроется мгновенно — без повторной генерации. Все расширения тоже сохранятся.
+      </div>
+    </section>
+
+    <!-- ─── 7. Типы шагов ─── -->
+    <section class="g-section" id="steps">
+      <div class="g-section-header">
+        <div class="g-section-icon g-section-icon--yellow">🗂️</div>
+        <div>
+          <div class="g-section-title">Типы шагов</div>
+        </div>
+      </div>
+
+      <p>В плане занятия каждый шаг имеет иконку, обозначающую его тип:</p>
+
+      <div class="step-types">
+        <div class="step-type-row">
+          <div class="step-badge step-badge--theory">📖</div>
+          <div>
+            <div class="step-type-name">Теория <span style="font-size:12px;color:var(--text-muted);font-weight:400;">micro_lesson</span></div>
+            <p class="step-type-desc">Теоретическое объяснение концепции с примерами кода. Читаете материал,
+              задаёте вопросы тьютору, можете расширить через «📚 Расширить теорию». Завершается
+              <strong>автоматически</strong> при переходе к следующему шагу.</p>
+          </div>
+        </div>
+        <div class="step-type-row">
+          <div class="step-badge step-badge--task">✏️</div>
+          <div>
+            <div class="step-type-name">Разбор примера <span style="font-size:12px;color:var(--text-muted);font-weight:400;">exercise</span></div>
+            <p class="step-type-desc">Управляемое упражнение — часто содержит образец или частично
+              заполненный код. Нужно написать решение и пройти минимум <strong>60% автотестов</strong>.</p>
+          </div>
+        </div>
+        <div class="step-type-row">
+          <div class="step-badge step-badge--practice">🔧</div>
+          <div>
+            <div class="step-type-name">Практическое задание <span style="font-size:12px;color:var(--text-muted);font-weight:400;">task</span></div>
+            <p class="step-type-desc">Самостоятельная задача с чётким условием. Нужно написать код
+              с нуля и пройти минимум <strong>60% автотестов</strong>.</p>
+          </div>
+        </div>
+        <div class="step-type-row" style="border-color: rgba(167,139,250,0.2);">
+          <div class="step-badge step-badge--quiz">💭</div>
+          <div>
+            <div class="step-type-name">Рефлексия <span style="font-size:12px;color:var(--text-muted);font-weight:400;">reflection</span></div>
+            <p class="step-type-desc">Финальная самооценка занятия: что удалось, что было трудным,
+              что сделать иначе. Обсуждается с тьютором в чате.
+              <strong>🔒 Заблокирована</strong> до завершения всех предыдущих шагов.
+              После отправки рефлексии в левой панели появляется кнопка
+              <strong>🔄 Завершить и начать заново</strong> — текущая сессия закрывается,
+              а новая начинается с главной страницы и повторного ввода API-ключа.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip tip--yellow">
+        <strong>Отличие exercise от task:</strong> exercise — управляемое упражнение (часто с образцом
+        или подсказками в коде), task — самостоятельная задача. Оба типа требуют минимум 60% тестов для перехода дальше.
+      </div>
+    </section>
+
+    <!-- ─── 8. Метрики ─── -->
+    <section class="g-section" id="metrics">
+      <div class="g-section-header">
+        <div class="g-section-icon g-section-icon--yellow">📊</div>
+        <div>
+          <div class="g-section-title">Метрики</div>
+        </div>
+      </div>
+
+      <p>В нижней части левой панели отображаются метрики текущей сессии.
+        Тьютор использует их для адаптации своих подсказок и объяснений.</p>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">Точность</div>
+          <div class="metric-val">—</div>
+          <div class="metric-desc">Доля успешно пройденных тестов от общего числа попыток.</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Подсказки</div>
+          <div class="metric-val">—</div>
+          <div class="metric-desc">Сколько раз вы обращались за намёками в текущей сессии.</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">SRL фаза</div>
+          <div class="metric-val">—</div>
+          <div class="metric-desc">Фаза по модели Зиммерманна: 🧭 Планирование → ⚙️ Выполнение → 🪞 Рефлексия. Тьютор адаптирует подсказки под текущую фазу.</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Эмоции</div>
+          <div class="metric-val">—</div>
+          <div class="metric-desc">Аффективное состояние, определяемое тьютором по тону сообщений.</div>
+        </div>
+      </div>
+
+      <div class="tip">
+        <strong>Зачем это нужно?</strong> Метрики помогают тьютору понять, как вы себя чувствуете
+        в процессе обучения, и скорректировать стиль объяснений — например, дать больше поддержки
+        при высоком числе подсказок или похвалить за высокую точность.
+      </div>
+    </section>
+
+    <!-- ─── 9. Горячие клавиши ─── -->
+    <section class="g-section" id="shortcuts">
+      <div class="g-section-header">
+        <div class="g-section-icon g-section-icon--blue">⌨️</div>
+        <div>
+          <div class="g-section-title">Горячие клавиши</div>
+        </div>
+      </div>
+
+      <p>Используйте клавиатурные сочетания, чтобы работать быстрее:</p>
+
+      <table class="kbd-table">
+        <thead>
+          <tr>
+            <th>Клавиша</th>
+            <th>Действие</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td>
+            <td>Запустить код (Run)</td>
+          </tr>
+          <tr>
+            <td><kbd>Shift</kbd> + <kbd>Enter</kbd></td>
+            <td>Запустить код (Run) — альтернатива</td>
+          </tr>
+          <tr>
+            <td><kbd>Tab</kbd></td>
+            <td>Добавить отступ (4 пробела)</td>
+          </tr>
+          <tr>
+            <td><kbd>Shift</kbd> + <kbd>Tab</kbd></td>
+            <td>Убрать отступ</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>Z</kbd></td>
+            <td>Отменить последнее действие</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>Y</kbd></td>
+            <td>Повторить отменённое действие</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>/</kbd></td>
+            <td>Закомментировать / раскомментировать строку</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tip tip--green">
+        <strong>На Mac</strong> используйте <kbd>⌘ Cmd</kbd> вместо <kbd>Ctrl</kbd>.
+      </div>
+    </section>
+
+    <div class="g-divider"></div>
+
+    <p style="text-align:center; color: var(--text-muted); font-size: 13px; padding-bottom: 12px;">
+      Остались вопросы? Спросите прямо в чате с тьютором во время сессии. 🐍
+    </p>
+
+  </main>
+</div>
+
+<script>
+  // Highlight active sidebar link via IntersectionObserver
+  const sections = document.querySelectorAll('.g-section');
+  const navLinks  = document.querySelectorAll('.g-nav-item a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, {
+    rootMargin: '-20% 0px -60% 0px',
+    threshold:  0,
+  });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

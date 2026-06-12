@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Tutor — Рабочее пространство</title>
+
+  <!-- CodeMirror 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/lib/codemirror.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/theme/monokai.css">
+
+  <link rel="stylesheet" href="workspace.css?v=12">
+  <link rel="icon" type="image/png" href="/ui_moral/favicon.png">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════════════ -->
+<header class="ws-header" id="ws-header">
+  <div class="ws-header-left">
+    <a href="/" class="ws-logo" title="На главную">🐍</a>
+    <div class="ws-goal-info">
+      <span id="goal-title" class="ws-goal-title">Загрузка...</span>
+      <span id="step-indicator" class="ws-step-chip">— / —</span>
+    </div>
+  </div>
+  <div class="ws-header-center">
+    <span id="session-timer" class="ws-timer" title="Время сессии">00:00</span>
+  </div>
+  <div class="ws-header-right">
+    <span id="ws-status" class="ws-ws-status ws-ws-status--connecting">● WS</span>
+    <button id="mode-toggle" class="ws-mode-btn">Новичок</button>
+    <button id="new-session-header-btn" class="ws-header-action-btn" onclick="endSessionAndRestart()" title="Завершить текущую сессию и начать заново">
+      Новая сессия
+    </button>
+    <a href="/" class="ws-exit-link">✕</a>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MOBILE TABS (< 1024px)
+════════════════════════════════════════════════════════════ -->
+<nav class="ws-mobile-tabs" id="mobile-tabs">
+  <button class="ws-mobile-tab active" onclick="showMobilePanel('plan')">📋 План</button>
+  <button class="ws-mobile-tab" onclick="showMobilePanel('code')">💻 Код</button>
+  <button class="ws-mobile-tab" onclick="showMobilePanel('chat')">💬 Чат</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN 3-COLUMN BODY
+════════════════════════════════════════════════════════════ -->
+<div class="ws-body" id="ws-body">
+
+  <!-- ─── LEFT: Plan + Task ─── -->
+  <aside class="ws-panel ws-plan" id="panel-plan">
+
+    <!-- Stepper -->
+    <div class="ws-section">
+      <div class="ws-section-title">📋 План занятия</div>
+      <ol class="ws-stepper" id="stepper">
+        <li class="ws-step ws-step--loading">Загрузка плана...</li>
+      </ol>
+    </div>
+
+    <!-- Next Step CTA -->
+    <div id="next-step-container" class="ws-section" style="display:none">
+      <button class="ws-next-step-btn" onclick="goToNextStep()">→ Следующий шаг</button>
+    </div>
+
+    <!-- New session CTA (появляется после завершения рефлексии) -->
+    <div id="new-session-btn-container" class="ws-section" style="display:none; text-align:center;">
+      <button id="new-session-btn" class="ws-next-step-btn" style="background:#2563eb;">
+        🔄 Завершить и начать заново
+      </button>
+    </div>
+
+    <!-- Current Task -->
+    <div class="ws-section ws-task-card" id="task-card">
+      <div class="ws-section-title">📝 Текущее задание</div>
+      <!-- Task meta: topic / level / estimated time (problem §8) -->
+      <div id="task-meta" class="ws-task-meta" style="display:none">
+        <span class="ws-task-chip ws-task-chip--topic" id="task-meta-topic" title="Тема">📚 —</span>
+        <span class="ws-task-chip ws-task-chip--level" id="task-meta-level" title="Уровень сложности">🎯 —</span>
+        <span class="ws-task-chip ws-task-chip--time"  id="task-meta-time"  title="Ориентировочное время">⏱ —</span>
+      </div>
+      <div id="step-goal-card" class="ws-step-goal-card" style="display:none">
+        <div id="step-goal-text" class="ws-step-goal-text"></div>
+      </div>
+      <div id="task-statement" class="ws-task-statement">Загрузка задания...</div>
+      <div class="ws-criteria-block">
+        <span class="ws-criteria-label">✅ Критерий успеха:</span>
+        <span id="task-criteria" class="ws-criteria-text">Пройти все тесты</span>
+      </div>
+      <!-- Test progress (problem §8): at-a-glance pass ratio on the task card -->
+      <div id="task-test-progress" class="ws-task-progress" style="display:none">
+        <div class="ws-task-progress-top">
+          <span class="ws-task-progress-label">Прогресс тестов</span>
+          <span id="task-progress-text" class="ws-task-progress-text">—</span>
+        </div>
+        <div id="task-progress-status" class="ws-task-progress-status"></div>
+        <div class="ws-task-progress-track">
+          <div id="task-progress-fill" class="ws-task-progress-fill"></div>
+        </div>
+      </div>
+      <div class="ws-run-row">
+        <button id="run-btn-left" class="ws-btn ws-btn--run" onclick="runCode()">▶ Run</button>
+        <button id="test-btn-left" class="ws-btn ws-btn--test" onclick="testCode()">✓ Test</button>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="ws-section ws-metrics-section">
+      <div class="ws-section-title">📊 Метрики</div>
+      <div class="ws-metrics-grid">
+        <div class="ws-metric">
+          <span class="ws-metric-label">Точность</span>
+          <span id="m-accuracy" class="ws-metric-value">—</span>
+        </div>
+        <div class="ws-metric">
+          <span class="ws-metric-label">Подсказки</span>
+          <span id="m-hints" class="ws-metric-value">—</span>
+        </div>
+        <div class="ws-metric">
+          <span class="ws-metric-label">SRL фаза</span>
+          <span id="m-phase" class="ws-metric-value">—</span>
+        </div>
+        <div class="ws-metric">
+          <span class="ws-metric-label">Эмоции</span>
+          <span id="m-affect" class="ws-metric-value">—</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ─── CENTER: Editor + Results ─── -->
+  <main class="ws-editor-area" id="panel-code">
+
+    <!-- Editor Header with Tabs + Buttons -->
+    <div class="ws-editor-header">
+      <div class="ws-file-tabs" id="file-tabs">
+        <div class="ws-file-tab ws-file-tab--active" id="tab-main" onclick="switchToTab('code')">
+          <span class="ws-file-tab-icon">🐍</span>
+          starter_code.py
+        </div>
+        <div class="ws-file-tab" id="tab-theory" style="display:none" onclick="switchToTab('theory')">
+          <span class="ws-file-tab-icon">📖</span>
+          theory.md
+        </div>
+      </div>
+      <div class="ws-editor-actions">
+        <button class="ws-btn ws-btn--run ws-btn--sm" onclick="runCode()">▶ Run</button>
+        <button class="ws-btn ws-btn--test ws-btn--sm" onclick="testCode()">✓ Test</button>
+      </div>
+    </div>
+
+    <!-- CodeMirror inline -->
+    <div id="code-editor" class="ws-codemirror-wrap"></div>
+
+    <!-- Theory viewer (shown instead of editor on theory steps) -->
+    <div id="theory-display" class="ws-theory-display" style="display:none"></div>
+
+    <!-- Reflection Panel (shown instead of editor on reflection steps) -->
+    <div id="reflection-panel" class="ws-reflection-panel" style="display:none">
+      <div class="ws-refl-header">
+        <span class="ws-refl-icon">🪞</span>
+        <div>
+          <div class="ws-refl-title">Рефлексия — завершение цикла обучения</div>
+          <div class="ws-refl-subtitle">Фаза самооценки по модели SRL (Зиммерманн, 2000)</div>
+        </div>
+      </div>
+
+      <div class="ws-refl-body" id="refl-form">
+        <!-- Self-judgment -->
+        <div class="ws-refl-field">
+          <label class="ws-refl-label">Насколько хорошо ты справился с целью занятия?</label>
+          <div class="ws-refl-rating" id="refl-rating">
+            <button class="ws-refl-star" data-v="1" onclick="selectRating(1)">1</button>
+            <button class="ws-refl-star" data-v="2" onclick="selectRating(2)">2</button>
+            <button class="ws-refl-star" data-v="3" onclick="selectRating(3)">3</button>
+            <button class="ws-refl-star" data-v="4" onclick="selectRating(4)">4</button>
+            <button class="ws-refl-star" data-v="5" onclick="selectRating(5)">5</button>
+          </div>
+        </div>
+
+        <!-- Self-satisfaction -->
+        <div class="ws-refl-field">
+          <label class="ws-refl-label">Что получилось лучше всего?</label>
+          <textarea id="refl-success" class="ws-refl-textarea" rows="2"
+            placeholder="Например: разобрался с рекурсией, правильно написал функцию..."></textarea>
+        </div>
+
+        <!-- Causal attribution -->
+        <div class="ws-refl-field">
+          <label class="ws-refl-label">Что было трудным и почему, на твой взгляд?</label>
+          <textarea id="refl-difficulty" class="ws-refl-textarea" rows="2"
+            placeholder="Например: не понимал, как работает стек вызовов..."></textarea>
+        </div>
+
+        <!-- Adaptive inference -->
+        <div class="ws-refl-field">
+          <label class="ws-refl-label">Что сделаешь иначе в следующий раз?</label>
+          <textarea id="refl-next" class="ws-refl-textarea" rows="2"
+            placeholder="Например: сначала нарисую схему алгоритма..."></textarea>
+        </div>
+
+        <button class="ws-refl-submit-btn" onclick="submitReflection()">
+          📤 Отправить и получить итог занятия
+        </button>
+      </div>
+
+      <!-- LLM summary (shown after submit) -->
+      <div id="refl-summary" class="ws-refl-summary" style="display:none"></div>
+    </div>
+
+    <!-- Test Results (hidden until Test is clicked) -->
+    <div class="ws-test-results" id="test-results" style="display:none">
+      <div class="ws-test-results-header">
+        <span class="ws-test-results-title">Результаты тестов</span>
+        <span id="test-summary" class="ws-test-summary"></span>
+        <button class="ws-close-btn" onclick="closeTestResults()" title="Закрыть">✕</button>
+      </div>
+      <div id="test-next-action" class="ws-test-next-action" style="display:none"></div>
+      <div id="test-list" class="ws-test-list"></div>
+    </div>
+
+  </main>
+
+  <!-- ─── RIGHT: Chat ─── -->
+  <aside class="ws-panel ws-chat-panel" id="panel-chat">
+
+    <div class="ws-section-title">💬 Тьютор</div>
+
+    <div class="ws-chat-messages" id="chat-messages">
+      <div class="ws-msg ws-msg--assistant">
+        <div class="ws-msg-content">Привет! Я твой тьютор. Начни задание — я помогу разобраться. Нажми <strong>Test</strong>, чтобы проверить решение.</div>
+      </div>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="ws-quick-btns">
+      <button class="ws-quick-btn" onclick="sendQuick('/ask_question')">💬 Задай вопрос</button>
+      <button class="ws-quick-btn" onclick="sendQuick('/hint')">💡 Дай подсказку</button>
+      <button class="ws-quick-btn" id="btn-explain-failure"
+              onclick="sendQuick('/explain_failure')" disabled>🔍 Разбери ошибку</button>
+      <button class="ws-quick-btn" onclick="sendQuick('/review_code')">✅ Проверь код</button>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="ws-chat-input-area">
+      <textarea
+        id="chat-input"
+        class="ws-chat-input"
+        placeholder="Написать тьютору..."
+        rows="2"
+      ></textarea>
+      <button id="chat-send" class="ws-btn ws-btn--send">↑</button>
+    </div>
+
+  </aside>
+
+</div><!-- .ws-body -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     BOTTOM CONSOLE
+════════════════════════════════════════════════════════════ -->
+<div class="ws-console" id="ws-console">
+  <div class="ws-console-header">
+    <div class="ws-console-tabs">
+      <button class="ws-console-tab ws-console-tab--active" id="ctab-output" onclick="switchConsole('output')">Output</button>
+    </div>
+    <div class="ws-console-controls">
+      <span id="console-status" class="ws-console-status"></span>
+      <button class="ws-console-toggle" id="console-toggle" onclick="toggleConsole()" title="Свернуть/развернуть">▼</button>
+    </div>
+  </div>
+  <div class="ws-console-body" id="console-body">
+    <pre id="output-display" class="ws-output">Нажми ▶ Run, чтобы запустить код</pre>
+  </div>
+</div>
+
+<div id="toast-root" class="ws-toast-root" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/lib/codemirror.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/mode/python/python.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/addon/edit/matchbrackets.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/addon/edit/closebrackets.js"></script>
+<script src="workspace.js?v=12"></script>
+</body>
+</html>

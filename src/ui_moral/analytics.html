@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Аналитика сессии — Python Tutor</title>
+  <style>
+    :root {
+      --bg:        #0b1220;
+      --surface:   rgba(15, 23, 42, 0.90);
+      --border:    rgba(255,255,255,0.07);
+      --text:      #e8eef7;
+      --muted:     #7a8ba8;
+      --accent:    #6abfff;
+      --green:     #4ade80;
+      --red:       #f87171;
+      --yellow:    #fbbf24;
+      --purple:    #a78bfa;
+      --orange:    #fb923c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(circle at 20% 20%, #1b2a47 0, #0b1220 45%, #05080f 80%);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+    h1 { font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+    .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 32px; }
+    .section { margin-bottom: 32px; }
+    .section-title {
+      font-size: 15px; font-weight: 600; color: var(--accent);
+      margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* --- Contribution cards --- */
+    .cards-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    .card {
+      flex: 1; min-width: 160px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .card-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    .card-value { font-size: 28px; font-weight: 700; }
+    .card-sub   { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .v-blue   { color: var(--accent); }
+    .v-green  { color: var(--green); }
+    .v-purple { color: var(--purple); }
+
+    .delta-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 20px; margin-bottom: 16px;
+    }
+    .delta-item { display: flex; flex-direction: column; gap: 2px; }
+    .delta-label { font-size: 11px; color: var(--muted); }
+    .delta-value { font-size: 18px; font-weight: 700; color: var(--green); }
+
+    /* --- Diagnostics grid --- */
+    .diag-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .diag-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px;
+    }
+    .diag-card .label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .diag-card .val   { font-size: 20px; font-weight: 700; }
+
+    /* --- Chart containers --- */
+    .chart-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px; margin-bottom: 20px;
+    }
+    .chart-title { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 12px; }
+    .chart-canvas { max-height: 260px; }
+
+    /* --- Action distribution --- */
+    .action-bars { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .action-bar-row { display: flex; align-items: center; gap: 10px; }
+    .action-name { width: 80px; font-size: 12px; color: var(--muted); }
+    .action-bar-bg { flex: 1; height: 14px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+    .action-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width .4s; }
+    .action-count { font-size: 12px; color: var(--text); width: 24px; text-align: right; }
+
+    /* --- Why table --- */
+    .why-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .why-table th { text-align: left; padding: 8px 10px; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); }
+    .why-table td { padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: top; }
+    .why-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-hint      { background: rgba(106,191,255,.15); color: var(--accent); }
+    .badge-support   { background: rgba(74,222,128,.15);  color: var(--green); }
+    .badge-explain   { background: rgba(251,191,36,.15);  color: var(--yellow); }
+    .badge-question  { background: rgba(167,139,250,.15); color: var(--purple); }
+    .badge-simplify  { background: rgba(248,113,113,.15); color: var(--red); }
+    .badge-reflect   { background: rgba(251,146,60,.15);  color: var(--orange); }
+    .badge-challenge { background: rgba(248,113,113,.15); color: var(--red); }
+
+    .schema-tag { font-size: 11px; color: var(--muted); }
+    .schema-stress { color: var(--red); }
+
+    #loading { text-align: center; padding: 80px 0; color: var(--muted); font-size: 15px; }
+    #error-msg { text-align: center; padding: 60px 0; color: var(--red); font-size: 14px; }
+    #content { display: none; }
+  </style>
+</head>
+<body>
+  <div id="loading">Загрузка аналитики…</div>
+  <div id="error-msg" style="display:none"></div>
+
+  <div id="content">
+    <h1>📊 Аналитика сессии</h1>
+    <div class="subtitle" id="session-subtitle"></div>
+
+    <!-- 1. Итоговые числа -->
+    <div class="section">
+      <div class="section-title">1. Средняя полезность (utility) по политикам</div>
+      <div class="cards-row">
+        <div class="card">
+          <div class="card-label">Без адаптации</div>
+          <div class="card-value v-blue" id="u-baseline">—</div>
+          <div class="card-sub">baseline</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Только SRL</div>
+          <div class="card-value v-green" id="u-srl">—</div>
+          <div class="card-sub">srl_only</div>
+        </div>
+        <div class="card">
+          <div class="card-label">SRL + eBICA</div>
+          <div class="card-value v-purple" id="u-full">—</div>
+          <div class="card-sub">full</div>
+        </div>
+      </div>
+      <div class="delta-row">
+        <div class="delta-item">
+          <span class="delta-label">Вклад SRL</span>
+          <span class="delta-value" id="delta-srl">—</span>
+        </div>
+        <div class="delta-item">
+          <span class="delta-label">Вклад eBICA</span>
+          <span class="delta-value" id="delta-ebica">—</span>
+        </div>
+        <div class="delta-item">
+          <span class="delta-label">Policy shifts (SRL)</span>
+          <span class="delta-value" id="shifts-srl" style="color:var(--yellow)">—</span>
+        </div>
+        <div class="delta-item">
+          <span class="delta-label">Policy shifts (eBICA)</span>
+          <span class="delta-value" id="shifts-ebica" style="color:var(--purple)">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Диагностические числа -->
+    <div class="section">
+      <div class="section-title">2. Диагностика</div>
+      <div class="diag-grid">
+        <div class="diag-card">
+          <div class="label">Пик Frustration Score</div>
+          <div class="val" id="d-fs" style="color:var(--red)">—</div>
+        </div>
+        <div class="diag-card">
+          <div class="label">Ср. emotional distance</div>
+          <div class="val" id="d-ed" style="color:var(--yellow)">—</div>
+        </div>
+        <div class="diag-card">
+          <div class="label">TMR (итог)</div>
+          <div class="val" id="d-tmr" style="color:var(--green)">—</div>
+        </div>
+        <div class="diag-card">
+          <div class="label">Hint Rate (итог)</div>
+          <div class="val" id="d-hr" style="color:var(--accent)">—</div>
+        </div>
+        <div class="diag-card">
+          <div class="label">Всего сообщений</div>
+          <div class="val" id="d-msgs" style="color:var(--muted)">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Графики -->
+    <div class="section">
+      <div class="section-title">3. Графики</div>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Utility по сообщениям — baseline / srl_only / full</div>
+        <canvas id="chart-utility" class="chart-canvas"></canvas>
+      </div>
+
+      <div class="chart-wrap" style="padding-top:12px">
+        <div class="chart-title">Действия по политикам (← где SRL/eBICA изменили выбор)</div>
+        <table class="why-table">
+          <thead><tr><th>#</th><th>Baseline</th><th>SRL-only</th><th>Full (SRL+eBICA)</th><th>Вклад</th></tr></thead>
+          <tbody id="actions-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Frustration Score по сообщениям</div>
+        <canvas id="chart-fs" class="chart-canvas"></canvas>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Policy shifts — вклад SRL и eBICA по шагам</div>
+        <canvas id="chart-shifts" class="chart-canvas"></canvas>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Распределение действий тьютора (full)</div>
+        <div class="action-bars" id="action-bars"></div>
+      </div>
+    </div>
+
+    <!-- 4. Что сделал тьютор и почему -->
+    <div class="section">
+      <div class="section-title">4. Что сделал тьютор и почему</div>
+      <div style="overflow-x:auto">
+        <table class="why-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Действие (full)</th>
+              <th>Baseline</th>
+              <th>SRL-only</th>
+              <th>Схема</th>
+              <th>FS</th>
+              <th>TMR</th>
+              <th>Почему изменилось</th>
+            </tr>
+          </thead>
+          <tbody id="why-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+  const SESSION_ID = new URLSearchParams(location.search).get('session_id');
+
+  function badgeHtml(action) {
+    const cls = 'badge badge-' + (action || 'support');
+    return `<span class="${cls}">${action || '—'}</span>`;
+  }
+
+  function schemaTag(id) {
+    const stress = id && id.includes('stress');
+    return `<span class="schema-tag ${stress ? 'schema-stress' : ''}">${id || '—'}</span>`;
+  }
+
+  function whyText(m) {
+    const parts = [];
+    if (m.full.action !== m.srl_only.action) {
+      parts.push(`eBICA: FS=${m.fs.toFixed(2)} → ${m.schema_id}`);
+    }
+    if (m.srl_only.action !== m.baseline.action) {
+      parts.push(`SRL: TMR=${m.tmr.toFixed(2)} → ${m.srl_only.action}`);
+    }
+    if (parts.length === 0) parts.push('без изменений');
+    return parts.join('; ');
+  }
+
+  async function load() {
+    if (!SESSION_ID) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error-msg').style.display = '';
+      document.getElementById('error-msg').textContent = 'session_id не указан в URL';
+      return;
+    }
+
+    try {
+      const resp = await fetch(`/api/session/${SESSION_ID}/analytics`, { headers: { 'X-Session-Token': SESSION_TOKEN } });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      render(data);
+    } catch (e) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error-msg').style.display = '';
+      document.getElementById('error-msg').textContent = `Ошибка загрузки: ${e.message}`;
+    }
+  }
+
+  function fmt(v) { return typeof v === 'number' ? v.toFixed(4) : '—'; }
+  function fmt3(v) { return typeof v === 'number' ? v.toFixed(3) : '—'; }
+  function fmtDelta(v) { return (v >= 0 ? '+' : '') + (v || 0).toFixed(4); }
+
+  function render(data) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    document.getElementById('session-subtitle').textContent = `session_id: ${SESSION_ID}  •  сообщений: ${data.summary.total_messages}`;
+
+    const s = data.summary;
+    document.getElementById('u-baseline').textContent = fmt(s.mean_utility_baseline);
+    document.getElementById('u-srl').textContent      = fmt(s.mean_utility_srl_only);
+    document.getElementById('u-full').textContent     = fmt(s.mean_utility_full);
+    document.getElementById('delta-srl').textContent   = fmtDelta(s.delta_srl);
+    document.getElementById('delta-ebica').textContent = fmtDelta(s.delta_ebica);
+    document.getElementById('shifts-srl').textContent   = s.policy_shifts_srl;
+    document.getElementById('shifts-ebica').textContent = s.policy_shifts_ebica;
+
+    document.getElementById('d-fs').textContent  = fmt3(s.peak_fs);
+    document.getElementById('d-ed').textContent  = fmt3(s.mean_emotional_distance);
+    document.getElementById('d-tmr').textContent = fmt3(s.tmr_final);
+    document.getElementById('d-hr').textContent  = fmt3(s.hint_rate_final);
+    document.getElementById('d-msgs').textContent = s.total_messages;
+
+    const pm = data.per_message;
+    const labels = pm.map(m => `#${m.idx + 1}`);
+
+    // Chart 1: Utility lines
+    new Chart(document.getElementById('chart-utility'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'baseline',  data: pm.map(m => m.baseline.utility),  borderColor: '#6abfff', backgroundColor: 'rgba(106,191,255,.08)', tension: .3, pointRadius: 3 },
+          { label: 'srl_only',  data: pm.map(m => m.srl_only.utility),  borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,.08)',  tension: .3, pointRadius: 3 },
+          { label: 'full',      data: pm.map(m => m.full.utility),      borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,.12)', tension: .3, pointRadius: 3, borderWidth: 2 },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { labels: { color: '#7a8ba8', font: { size: 12 } } } },
+        scales: {
+          x: { ticks: { color: '#7a8ba8' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { ticks: { color: '#7a8ba8' }, grid: { color: 'rgba(255,255,255,0.04)' }, suggestedMin: 0, suggestedMax: 1 },
+        },
+      },
+    });
+
+    // Actions table
+    const actTbody = document.getElementById('actions-table-body');
+    if (actTbody) {
+      actTbody.innerHTML = pm.map(m => {
+        const srlChanged  = m.srl_only.action !== m.baseline.action;
+        const ebicaChanged = m.full.action !== m.srl_only.action;
+        const contrib = [srlChanged ? '<span style="color:var(--green)">← SRL</span>' : '',
+                         ebicaChanged ? '<span style="color:var(--purple)">← eBICA</span>' : ''].filter(Boolean).join(' ') || '—';
+        return `<tr>
+          <td style="color:var(--muted)">#${m.idx+1}</td>
+          <td>${badgeHtml(m.baseline.action)}</td>
+          <td>${badgeHtml(m.srl_only.action)}</td>
+          <td>${badgeHtml(m.full.action)}</td>
+          <td>${contrib}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Chart 2: FS line + schema switch markers
+    const fsData = pm.map(m => m.fs);
+    const switchPoints = pm.map(m => m.schema_id && m.schema_id.includes('stress') ? m.fs : null);
+    new Chart(document.getElementById('chart-fs'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Frustration Score', data: fsData, borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,.08)', tension: .3, pointRadius: 3 },
+          { label: 'Schema switch',     data: switchPoints, borderColor: 'transparent', backgroundColor: '#fbbf24', pointRadius: 7, pointStyle: 'triangle', showLine: false },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { labels: { color: '#7a8ba8', font: { size: 12 } } } },
+        scales: {
+          x: { ticks: { color: '#7a8ba8' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { ticks: { color: '#7a8ba8' }, grid: { color: 'rgba(255,255,255,0.04)' }, min: 0, max: 1 },
+        },
+      },
+    });
+
+    // Chart 3: Policy shifts bar
+    const srlShiftArr  = pm.map(m => m.srl_only.action !== m.baseline.action ? 1 : 0);
+    const ebicaShiftArr = pm.map(m => m.full.action !== m.srl_only.action    ? 1 : 0);
+    new Chart(document.getElementById('chart-shifts'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'SRL shift',   data: srlShiftArr,   backgroundColor: 'rgba(74,222,128,.6)' },
+          { label: 'eBICA shift', data: ebicaShiftArr, backgroundColor: 'rgba(167,139,250,.6)' },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { labels: { color: '#7a8ba8', font: { size: 12 } } } },
+        scales: {
+          x: { stacked: true, ticks: { color: '#7a8ba8' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { stacked: true, ticks: { color: '#7a8ba8', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.04)' }, max: 2 },
+        },
+      },
+    });
+
+    // Action distribution
+    const ac = s.action_counts;
+    const maxCount = Math.max(...Object.values(ac), 1);
+    const barsEl = document.getElementById('action-bars');
+    barsEl.innerHTML = Object.entries(ac).sort((a,b) => b[1]-a[1]).map(([action, count]) => `
+      <div class="action-bar-row">
+        <span class="action-name">${action}</span>
+        <div class="action-bar-bg"><div class="action-bar-fill" style="width:${Math.round(count/maxCount*100)}%"></div></div>
+        <span class="action-count">${count}</span>
+      </div>`).join('');
+
+    // Why table
+    const tbody = document.getElementById('why-tbody');
+    tbody.innerHTML = pm.map(m => `
+      <tr>
+        <td style="color:var(--muted)">${m.idx + 1}</td>
+        <td>${badgeHtml(m.full.action)}</td>
+        <td>${badgeHtml(m.baseline.action)}</td>
+        <td>${badgeHtml(m.srl_only.action)}</td>
+        <td>${schemaTag(m.schema_id)}</td>
+        <td style="color:${m.fs > 0.6 ? 'var(--red)' : 'var(--muted)'}">${m.fs.toFixed(2)}</td>
+        <td style="color:var(--green)">${m.tmr.toFixed(2)}</td>
+        <td style="color:var(--muted);font-size:11px">${whyText(m)}</td>
+      </tr>`).join('');
+  }
+
+  load();
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 LANG=C.UTF-8
+RUN groupadd -g 10001 student && useradd -u 10001 -g student -m -s /usr/sbin/nologin student \
+    && pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir "pytest==7.4.4" "exceptiongroup>=1.2.0"
+WORKDIR /app
+RUN mkdir -p /app/tasks && chown -R student:student /app
+USER 10001:10001
+CMD ["tail", "-f", "/dev/null"]

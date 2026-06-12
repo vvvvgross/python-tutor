@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 1
+      IMAGES: 1
+      INFO: 1
+      PING: 1
+      POST: 1
+      EXEC: 1       # required only for controlled /api/run and /api/autograde inside sandbox
+      DELETE: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - control
+
+  tutor-app:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tutor-app:latest
+    depends_on:
+      - docker-proxy
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./tutor-data:/app/tutor-data
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DOCKER_HOST=tcp://docker-proxy:2375
+      - SANDBOX_IMAGE=tutor-sandbox:latest
+      - LANG=C.UTF-8
+    networks:
+      - control
+      - outbound
+
+  sandbox-image:
+    build:
+      context: .
+      dockerfile: Dockerfile.sandbox
+    image: tutor-sandbox:latest
+    profiles: ["build-only"]
+
+networks:
+  control:
+    internal: true
+  outbound:
+    driver: bridge
